@@ -1,3 +1,5 @@
+![preview1](https://github.com/a0s/telegram-loggerbot-ruby/raw/master/img/preview1.jpg)![preview2](https://github.com/a0s/telegram-loggerbot-ruby/raw/master/img/preview2.jpg)
+
 #telegram-loggerbot-ruby
 
 Allows to send event logs directly to the telegram chat
@@ -24,9 +26,9 @@ gem install telegram-loggerbot-ruby
 
 ##Usage
 
-1. Create new bot with @BotFather and get his TOKEN
-2. Write something to the new bot (!!!)
-3. Obtain your TELEGRAM_USER_ID from, for example, @get_id_bot
+  1. Create new bot with @BotFather and get his TOKEN
+  2. Write something to the new bot (!!!)
+  3. Obtain your TELEGRAM_USER_ID from, for example, @get_id_bot
 
 Require it to your code:
 
