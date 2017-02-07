@@ -1,11 +1,19 @@
 module Telegram
   module LoggerBot
+    TokenMissed = Class.new(ArgumentError)
+    ChatIdMissed = Class.new(ArgumentError)
+
     class Logger < ::Logger
-      def initialize(next_logger = nil, level = nil)
-        @next_logger = next_logger
-        @level = level || (next_logger.level if next_logger) || DEBUG
-        @default_formatter = Formatter.new
-        @api = Telegram::Bot::Api.new(Telegram::LoggerBot.configuration.token)
+      def initialize(args = {})
+        @default_formatter = args[:default_formatter] || Formatter.new
+
+        @level, @chat_id, @token, @next_logger, @api = args.values_at(:level, :chat_id, :token, :next_logger, :api)
+
+        @level ||= Telegram::LoggerBot.configuration.level || DEBUG
+        @chat_id ||= Telegram::LoggerBot.configuration.chat_id || fail(ChatIdMissed)
+        @token ||= Telegram::LoggerBot.configuration.token || fail(TokenMissed)
+        @next_logger ||= Telegram::LoggerBot.configuration.next_logger
+        @api ||= Telegram::LoggerBot.configuration.api || Telegram::Bot::Api.new(@token)
       end
 
       def clear_markdown(str)
@@ -68,7 +76,15 @@ module Telegram
 
       def add(severity, message = nil, progname = nil, &block)
         severity ||= UNKNOWN
-        return true if severity < @level
+
+        if severity < @level
+          if @next_logger
+            return @next_logger.add(severity, message, progname, &block)
+          else
+            return true
+          end
+        end
+
         if message.nil?
           if block_given?
             message = block.dup.call
@@ -78,19 +94,20 @@ module Telegram
           end
         end
 
-        chat_id = Telegram::LoggerBot.configuration.chat_id
         time = Time.now
 
         text = "#{format_severity_icon(severity)}*#{format_severity(severity)}*"
         text << "   _#{clear_markdown(progname)}_" if progname
         text << "\n#{format_time_icon(time)}#{time}"
 
-        @api.send_message(chat_id: chat_id, text: text, parse_mode: 'Markdown')
-        @api.send_message(chat_id: chat_id, text: message)
+        @api.send_message(chat_id: @chat_id, text: text, parse_mode: 'Markdown')
+        @api.send_message(chat_id: @chat_id, text: message)
 
-        return true unless @next_logger
-
-        @next_logger.add(severity, message, progname, &block)
+        if @next_logger
+          @next_logger.add(severity, message, progname, &block)
+        else
+          true
+        end
       end
     end
   end

@@ -4,25 +4,21 @@
 
 Allows to send event logs directly to the telegram chat
 
-##Installation
+## Installation
 
-Add following line to your Gemfile:
+Add this line to your application's Gemfile:
 
 ```ruby
-gem 'telegram-loggerbot-ruby'
+gem 'loggerbot'
 ```
 
 And then execute:
 
-```
-$ bundle
-```
+    $ bundle
 
-Or install it system-wide:
+Or install it yourself as:
 
-```
-gem install telegram-loggerbot-ruby
-```
+    $ gem install telegram-loggerbot-ruby
 
 ##Usage
 
@@ -33,29 +29,40 @@ gem install telegram-loggerbot-ruby
 Require it to your code:
 
 ```ruby
-require 'telegram/logger_bot'
+require 'telegram/loggerbot'
 ```
 
-Configure with obtained TOKEN and TELEGRAM_USER_ID: 
+Initialize with obtained TOKEN and TELEGRAM_USER_ID: 
 
 ```ruby
 Telegram::LoggerBot.configure do |config|
-  config.token = 'TOKEN'
-  config.chat_id = TELEGRAM_USER_ID
+    config.token = TOKEN                                 # required
+    config.chat_id = USER_ID_OR_CHAT_ID                  # required
+    config.level = Logger::INFO                          # optional, default is Logger::DEBUG
+    config.next_logger = App.existing_logger_instance    # optional
+    config.api = App.existing_telegram_bot_api_instance  # optional
 end
-```
 
-Create new logger:
-
-```ruby
 logger = Telegram::LoggerBot.new
 ```
 
-You can pass events through LoggerBot to your standard logger:
+or in classic style:
+
+```ruby
+logger = Telegram::LoggerBot.new(
+    token: TOKEN,                                 # required
+    chat_id: USER_ID_OR_CHAT_ID,                  # required
+    level: Logger::INFO,                          # optional, default is Logger::DEBUG
+    next_logger: App.existing_logger_instance,    # optional
+    api: App.existing_telegram_bot_api_instance   # optional
+)
+```
+
+You can pass events through LoggerBot to any other logger:
 
 ```ruby
 existing_logger = Logger.new(STDOUT)
-logger = Telegram::LoggerBot.new(existing_logger)
+logger = Telegram::LoggerBot.new(..., next_logger: existing_logger)
 ``` 
 
 Log you events:
@@ -68,6 +75,12 @@ logger.error('MyProgram') { "Text of some errors" }
 logger.fatal('MyProgram') { "Text of some errors" }
 ```
 
+## Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run `bundle exec rake install`.
+
 ## Contributing
 
 1. Fork it
@@ -75,3 +88,7 @@ logger.fatal('MyProgram') { "Text of some errors" }
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)
 5. Create new Pull Request
+
+## License
+
+The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).

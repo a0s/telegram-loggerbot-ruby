@@ -1,10 +1,10 @@
 require 'logger'
 require 'telegram/bot'
 
-require 'telegram/logger_bot/logger'
-require 'telegram/logger_bot/logger_bot'
-require 'telegram/logger_bot/version'
-require 'telegram/logger_bot/configuration'
+require 'telegram/loggerbot/logger'
+require 'telegram/loggerbot/loggerbot'
+require 'telegram/loggerbot/version'
+require 'telegram/loggerbot/configuration'
 
 module Telegram
   module LoggerBot
