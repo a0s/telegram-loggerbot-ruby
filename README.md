@@ -1,15 +1,17 @@
+#Telegram::LoggerBot
+
+[![Build Status](https://travis-ci.org/a0s/telegram-loggerbot-ruby.svg?branch=master)](https://travis-ci.org/a0s/telegram-loggerbot-ruby)
+
+Telegram::LoggerBot allows to send event logs directly to the Telegram chat
+
 ![preview1](https://github.com/a0s/telegram-loggerbot-ruby/raw/master/img/preview1.jpg)![preview2](https://github.com/a0s/telegram-loggerbot-ruby/raw/master/img/preview2.jpg)
-
-#telegram-loggerbot-ruby
-
-Allows to send event logs directly to the telegram chat
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'loggerbot'
+gem 'telegram-loggerbot-ruby'
 ```
 
 And then execute:
