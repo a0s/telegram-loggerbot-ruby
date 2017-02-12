@@ -7,13 +7,15 @@ module Telegram
       def initialize(args = {})
         @default_formatter = args[:default_formatter] || Formatter.new
 
-        @level, @chat_id, @token, @next_logger, @api = args.values_at(:level, :chat_id, :token, :next_logger, :api)
+        @level = args[:level] || Telegram::LoggerBot.configuration.level || DEBUG
+        @chat_id = args[:chat_id] || Telegram::LoggerBot.configuration.chat_id || fail(ChatIdMissed)
+        @token = args[:token] || Telegram::LoggerBot.configuration.token || fail(TokenMissed)
+        @next_logger = args[:next_logger] || Telegram::LoggerBot.configuration.next_logger
+        @api = args[:api] || Telegram::LoggerBot.configuration.api || Telegram::Bot::Api.new(@token)
 
-        @level ||= Telegram::LoggerBot.configuration.level || DEBUG
-        @chat_id ||= Telegram::LoggerBot.configuration.chat_id || fail(ChatIdMissed)
-        @token ||= Telegram::LoggerBot.configuration.token || fail(TokenMissed)
-        @next_logger ||= Telegram::LoggerBot.configuration.next_logger
-        @api ||= Telegram::LoggerBot.configuration.api || Telegram::Bot::Api.new(@token)
+        @enabled = args[:enabled] unless args[:enabled].nil?
+        @enabled = Telegram::LoggerBot.configuration.enabled unless Telegram::LoggerBot.configuration.enabled.nil?
+        @enabled = true if @enabled.nil?
       end
 
       def clear_markdown(str)
@@ -94,14 +96,16 @@ module Telegram
           end
         end
 
-        time = Time.now
+        if @enabled
+          time = Time.now
 
-        text = "#{format_severity_icon(severity)}*#{format_severity(severity)}*"
-        text << "   _#{clear_markdown(progname)}_" if progname
-        text << "\n#{format_time_icon(time)}#{time}"
+          text = "#{format_severity_icon(severity)}*#{format_severity(severity)}*"
+          text << "   _#{clear_markdown(progname)}_" if progname
+          text << "\n#{format_time_icon(time)}#{time}"
 
-        @api.send_message(chat_id: @chat_id, text: text, parse_mode: 'Markdown')
-        @api.send_message(chat_id: @chat_id, text: message)
+          @api.send_message(chat_id: @chat_id, text: text, parse_mode: 'Markdown')
+          @api.send_message(chat_id: @chat_id, text: message)
+        end
 
         if @next_logger
           @next_logger.add(severity, message, progname, &block)

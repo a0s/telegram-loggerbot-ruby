@@ -46,6 +46,32 @@ describe Telegram::LoggerBot::Logger do
       end
     end
 
+    describe 'enabled/disabled' do
+      it 'when enabled not defined' do
+        expect(@obj_fake_telegram).to receive(:send_message).ordered.with(hash_including(text: /DEBUG/))
+        expect(@obj_fake_telegram).to receive(:send_message).ordered.with(hash_including(text: 'ABCD'))
+        subject.new(api: @obj_fake_telegram, token: 't0kEn', chat_id: 123).send :debug, 'ABCD'
+      end
+
+      it 'when enabled is nil' do
+        expect(@obj_fake_telegram).to receive(:send_message).ordered.with(hash_including(text: /DEBUG/))
+        expect(@obj_fake_telegram).to receive(:send_message).ordered.with(hash_including(text: 'ABCD'))
+        subject.new(api: @obj_fake_telegram, token: 't0kEn', chat_id: 123, enabled: nil).send :debug, 'ABCD'
+      end
+
+      it 'when enabled is false' do
+        expect(@obj_fake_telegram).to_not receive(:send_message).ordered.with(hash_including(text: /DEBUG/))
+        expect(@obj_fake_telegram).to_not receive(:send_message).ordered.with(hash_including(text: 'ABCD'))
+        subject.new(api: @obj_fake_telegram, token: 't0kEn', chat_id: 123, enabled: false).send :debug, 'ABCD'
+      end
+
+      it 'when enabled is true' do
+        expect(@obj_fake_telegram).to receive(:send_message).ordered.with(hash_including(text: /DEBUG/))
+        expect(@obj_fake_telegram).to receive(:send_message).ordered.with(hash_including(text: 'ABCD'))
+        subject.new(api: @obj_fake_telegram, token: 't0kEn', chat_id: 123, enabled: true).send :debug, 'ABCD'
+      end
+    end
+
     [:debug, :info, :warn, :error, :fatal].each do |logger_level|
       context "when logger.level=#{logger_level.to_s.upcase}" do
         [:debug, :info, :warn, :error, :fatal].each_with_index do |msg_level, msg_index|

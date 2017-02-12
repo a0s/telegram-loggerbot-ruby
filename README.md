@@ -40,6 +40,7 @@ Initialize with obtained TOKEN and TELEGRAM_USER_ID:
 Telegram::LoggerBot.configure do |config|
     config.token = TOKEN                                 # required
     config.chat_id = USER_ID_OR_CHAT_ID                  # required
+    config.enabled = false                               # optional, true by default
     config.level = Logger::INFO                          # optional, default is Logger::DEBUG
     config.next_logger = App.existing_logger_instance    # optional
     config.api = App.existing_telegram_bot_api_instance  # optional
@@ -54,6 +55,7 @@ or in classic style:
 logger = Telegram::LoggerBot.new(
     token: TOKEN,                                 # required
     chat_id: USER_ID_OR_CHAT_ID,                  # required
+    enabled: false,                               # optional, true by default
     level: Logger::INFO,                          # optional, default is Logger::DEBUG
     next_logger: App.existing_logger_instance,    # optional
     api: App.existing_telegram_bot_api_instance   # optional
