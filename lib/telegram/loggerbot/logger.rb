@@ -2,20 +2,35 @@ module Telegram
   module LoggerBot
     TokenMissed = Class.new(ArgumentError)
     ChatIdMissed = Class.new(ArgumentError)
+    UnknownParams = Class.new(ArgumentError)
 
     class Logger < ::Logger
       def initialize(args = {})
-        @default_formatter = args[:default_formatter] || Formatter.new
+        args = args.dup
+        @default_formatter = args.delete(:default_formatter) || Formatter.new
 
-        @level = args[:level] || Telegram::LoggerBot.configuration.level || DEBUG
-        @chat_id = args[:chat_id] || Telegram::LoggerBot.configuration.chat_id || fail(ChatIdMissed)
-        @token = args[:token] || Telegram::LoggerBot.configuration.token || fail(TokenMissed)
-        @next_logger = args[:next_logger] || Telegram::LoggerBot.configuration.next_logger
-        @api = args[:api] || Telegram::LoggerBot.configuration.api || Telegram::Bot::Api.new(@token)
+        @level = args.delete(:level) || Telegram::LoggerBot.configuration.level || DEBUG
+        @chat_id = args.delete(:chat_id) || Telegram::LoggerBot.configuration.chat_id || fail(ChatIdMissed)
+        @token = args.delete(:token) || Telegram::LoggerBot.configuration.token || fail(TokenMissed)
+        @next_logger = args.delete(:next_logger) || Telegram::LoggerBot.configuration.next_logger
+        @api = args.delete(:api) || Telegram::LoggerBot.configuration.api || Telegram::Bot::Api.new(@token)
 
-        @enabled = args[:enabled] unless args[:enabled].nil?
-        @enabled = Telegram::LoggerBot.configuration.enabled unless Telegram::LoggerBot.configuration.enabled.nil?
-        @enabled = true if @enabled.nil?
+        @enabled =
+            if args.key?(:enabled)
+              value = args.delete(:enabled)
+              case value
+                when true, false
+                  value
+                else
+                  true
+              end
+            elsif not Telegram::LoggerBot.configuration.enabled.nil?
+              !!Telegram::LoggerBot.configuration.enabled
+            else
+              true
+            end
+
+        fail(UnknownParams, args) if args.keys.size > 0
       end
 
       def clear_markdown(str)

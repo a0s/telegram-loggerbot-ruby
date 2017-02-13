@@ -29,6 +29,12 @@ describe Telegram::LoggerBot::Logger do
     expect { subject.new(token: 't0kEn') }.to raise_error(Telegram::LoggerBot::ChatIdMissed)
   end
 
+  it "unknown params" do
+    expect { subject.new(chat_id: 123, token: 't0kEn', bad_param: 'bad value') }.
+        to raise_error(Telegram::LoggerBot::UnknownParams) { |ex|
+          expect(ex.message).to include(':bad_param=>"bad value"') }
+  end
+
   describe 'simple logging' do
     before :all do
       @kls_fake_telegram = Class.new
